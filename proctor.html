@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+    <script>
+
+        const myId = "proctor";
+        const peer = new Peer(myId, {
+            host: "127.0.0.1",
+            port: 8000
+        });
+        const students = new Set();
+
+        peer.on("call", (call) => {
+            navigator.mediaDevices.getUserMedia({
+                video: false,
+                audio: true
+            })
+                .then((stream) => {
+                    call.answer(stream);
+                    call.on("stream", (remoteStream) => {
+                        if (students.has(call.peer)) return;
+                        students.add(call.peer);
+                        const videoTag = document.createElement("video");
+                        videoTag.autoplay = true;
+                        videoTag.srcObject = remoteStream;
+                        document.body.appendChild(videoTag);
+                    });
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        });
+    </script>
+</body>
+
+</html>

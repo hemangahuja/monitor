@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+    <video id="me" autoplay></video>
+    <audio id="a" autoplay></audio>
+    <script>
+        const myId = prompt("Enter your id");
+        const proctorId = "proctor"
+        const peer = new Peer(myId, {
+            host: "127.0.0.1",
+            port: 8000
+        });
+
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                document.getElementById("me").srcObject = stream;
+                const call = peer.call(proctorId, stream);
+                call.on("stream", (remoteStream) => {
+                    document.getElementById("a").srcObject = remoteStream;
+                });
+            })
+            .catch((err) => {
+                console.error("Failed to get local stream", err);
+            });
+    </script>
+</body>
+
+</html>
